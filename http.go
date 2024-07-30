@@ -2,6 +2,7 @@ package go_splunk_rest
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net"
@@ -36,7 +37,7 @@ func (c Connection) httpCall(method, endpoint string, headers map[string]string,
 		req.Header.Set(h, v)
 	}
 
-	client := buildHttpClient()
+	client := buildHttpClient(c.InsecureSkipVerify)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -52,15 +53,19 @@ func (c Connection) httpCall(method, endpoint string, headers map[string]string,
 	return respStr, resp.StatusCode, nil
 }
 
-func buildHttpClient() *http.Client {
+func buildHttpClient(insecure bool) *http.Client {
 	netTransport := &http.Transport{
 		Dial: (&net.Dialer{
 			Timeout:   90 * time.Second,
 			KeepAlive: 60 * time.Second,
 		}).Dial,
 		TLSHandshakeTimeout: 30 * time.Second,
-		// 	TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // uncomment line to disable TLS verification (Not Recommended)
 	}
+
+	if insecure {
+		netTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
 	client := &http.Client{
 		Timeout:   time.Second * 90,
 		Transport: netTransport,
