@@ -39,6 +39,9 @@ type SearchOptions struct {
 	// (by using shrinking earliest and latest time fields)
 	// and combine the results at the end
 	AllowPartition bool
+
+	// AdhocSearchLevel can be fast, smart or verbose according to splunk documentation
+	AdhocSearchLevel string
 }
 
 type SearchJobStatus struct {
@@ -83,6 +86,10 @@ func (c Connection) SearchJobCreate(searchQuery string, searchOptions SearchOpti
 
 	data.Add("max_count", fmt.Sprintf("%d", searchOptions.MaxCount))
 	data.Add("time_format", SPLUNK_TIME_FORMAT)
+
+	if searchOptions.AdhocSearchLevel != "" {
+		data.Add("adhoc_search_level", searchOptions.AdhocSearchLevel)
+	}
 
 	if searchOptions.UseEarliestTime {
 		data.Add("earliest_time", searchOptions.EarliestTime.Format(TIME_FORMAT))
