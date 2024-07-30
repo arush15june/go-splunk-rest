@@ -1,3 +1,3 @@
-module github.com/pvik/go-splunk-rest
+module github.com/arush15june/go-splunk-rest
 
 go 1.21
